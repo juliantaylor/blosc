@@ -28,6 +28,7 @@
   #include <inttypes.h>
 #endif  /* _WIN32 */
 
+#ifdef HAVE_AVX2
 void __attribute__((visibility ("hidden")))
 shuffle2_AVX2(uint8_t* dest, const uint8_t* src, size_t size);
 void __attribute__((visibility ("hidden")))
@@ -44,6 +45,7 @@ void __attribute__((visibility ("hidden")))
 unshuffle8_AVX2(uint8_t* dest, const uint8_t* src, size_t size);
 void __attribute__((visibility ("hidden")))
 unshuffle16_AVX2(uint8_t* dest, const uint8_t* src, size_t size);
+#endif
 
 static int
 have_avx2(void)
@@ -292,6 +294,7 @@ void shuffle(size_t bytesoftype, size_t blocksize,
   /* Optimized shuffle */
   /* The buffer must be aligned on a 16 bytes boundary, have a power */
   /* of 2 size and be larger or equal than 256 bytes. */
+#ifdef HAVE_AVX2
   if (have_avx2()) {
       if (bytesoftype == 4) {
         shuffle4_AVX2(_dest, _src, blocksize);
@@ -310,7 +313,9 @@ void shuffle(size_t bytesoftype, size_t blocksize,
         _shuffle(bytesoftype, blocksize, _src, _dest);
       }
   }
-  else {
+  else
+#endif
+  {
       if (bytesoftype == 4) {
         shuffle4_SSE2(_dest, _src, blocksize);
       }
@@ -539,6 +544,7 @@ void unshuffle(size_t bytesoftype, size_t blocksize,
   /* Optimized unshuffle */
   /* The buffers must be aligned on a 16 bytes boundary, have a power */
   /* of 2 size and be larger or equal than 256 bytes. */
+#ifdef HAVE_AVX2
   if (have_avx2()) {
     if (bytesoftype == 4) {
       unshuffle4_AVX2(_dest, _src, blocksize);
@@ -557,7 +563,9 @@ void unshuffle(size_t bytesoftype, size_t blocksize,
       _unshuffle(bytesoftype, blocksize, _src, _dest);
     }
   }
-  else {
+  else
+#endif
+  {
     if (bytesoftype == 4) {
       unshuffle4_SSE2(_dest, _src, blocksize);
     }
